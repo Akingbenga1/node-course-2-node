@@ -30,7 +30,7 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', function(err,db)
 
 		// });
 
-		  db.collection('Todos').find().toArray().then(function(docs){
+		  db.collection('Users').find().toArray().then(function(docs){
 		 	console.log("Todos");
 		 	console.log(JSON.stringify(docs, undefined,  2));
 
@@ -59,14 +59,14 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', function(err,db)
 		 // 	console.log("Unable to fetch todos", err);
 		 // }); 
 
-		   db.collection('Todos').find().count().then(function(count){
-		 	console.log("Todos counts: " + count);
-		 	//console.log(JSON.stringify(docs, undefined,  2));
+		 //   db.collection('Users').find().count().then(function(count){
+		 // 	console.log("Todos counts: " + count);
+		 // 	//console.log(JSON.stringify(docs, undefined,  2));
 
-		 }, function(err){
+		 // }, function(err){
 
-		 	console.log("Unable to fetch todos", err);
-		 }); 
+		 // 	console.log("Unable to fetch todos", err);
+		 // }); 
 
 
 
