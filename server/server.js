@@ -1,7 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 const ObjectID = require('mongodb').ObjectID;
-
+const port = process.env.PORT || 3000;
 
 
 var mongoose = require('./db/mongoose').mongoose;
@@ -65,9 +65,9 @@ app.get('/todos/:id', function(req,res) {
 	// });
 });
 
-app.listen(3000, function()
+app.listen(port, function()
 {
-console.log("Started On port 3000");
+console.log("Started on port " + port);
 
 });
 
