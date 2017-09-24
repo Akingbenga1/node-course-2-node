@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+const ObjectID = require('mongodb').ObjectID;
 
 
 
@@ -35,6 +36,33 @@ app.get('/todos', function(req,res) {
 	}, function(e){
 		res.status(400).send(e);
 	});
+});
+
+app.get('/todos/:id', function(req,res) {
+
+	var id = req.params.id;
+
+	if(!ObjectID.isValid(id))
+	{
+		res.status(404).send("ID is invalid ");
+	}
+	Todo.findById(id).then(function(todos){
+		if(!todos)
+		{
+			res.status(404).send("Request id not found");
+			//return console.log("Id not found");
+		}
+		//console.log("Todos", todos);
+		res.status(200).send(todos);
+	}).catch(function(e){
+		res.status(404).send("Request not valid");
+	});
+	// Todo.find().then(function(todos){
+	// 	console.log(todos);
+	// 	res.send({todos});
+	// }, function(e){
+	// 	res.status(400).send(e);
+	// });
 });
 
 app.listen(3000, function()
