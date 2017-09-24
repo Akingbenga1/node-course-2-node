@@ -35,3 +35,5 @@ console.log("Started On port 3000");
 
 
 
+
+module.exports = {app: app};
