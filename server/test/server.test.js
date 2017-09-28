@@ -5,10 +5,16 @@ const ObjectID = require('mongodb').ObjectID;
 const app = require('./../server').app;
 const Todo = require('./../models/todo').Todo;
 
-const todos = [{
-	_id : new ObjectID(),
-	text : "First test todo"
-}];
+const todos = 
+				[{
+					_id : new ObjectID(),
+					text : "First test todo"
+				}, {
+					_id : new ObjectID(),
+					text : "Second test todo",
+					completed: true,
+					completedAt:333
+				}];
 
 
 beforeEach(function(done){
@@ -155,4 +161,33 @@ describe('DELETE /todos/:id', function(){
 	// 	}).end(done)
 	// });
 
+});
+
+
+describe('PATCH /todos/:id', function(){
+	it('should UPDATE the Todo ', function(done){
+		var hexId = todos[0]._id.toHexString();
+		var text = "This should be the new text";
+
+
+		request(app)
+		.patch('/todos/' + hexId)
+		.send({completed: false, text : text})
+		.expect(200).
+		expect(function(res)
+		{
+			expect(res.body.text).toBe(text);
+			expect(res.body.completed).toBe(false);
+			expect(res.body.completedAt).toNotExist('number');
+			//expect(res.body.text).toBe(todos[0].text);
+		}).end(done)
+	});
+
+	it('should clear completedAt when todo is not completed', function(done){
+		request(app).get('/todos/123')
+		.expect(404).
+		expect(function(res){
+			//expect(res.body.text).toBe(todos[0].text);
+		}).end(done)
+	});
 });
