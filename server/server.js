@@ -132,6 +132,43 @@ app.patch('/todos/:id', function(req,res) {
 	// });
 });
 
+
+app.post('/users', function(req,res)
+ {
+
+	var body =  _.pick(req.body, ['email', 'password']);
+	console.log(body);
+
+	var user = new User(body);
+
+	user.save().then(function(user){
+		
+		// res.status(200).send(user);
+		return user.generateAuthToken();
+	}).then(function(token){
+			res.header('x-auth', token ).send(user)
+	}).catch(function(e){
+		res.status(404).send(e);
+	});
+	
+});
+
+// User.findByToken();
+// user.generateAuthToken()
+
+
+
+
+// app.get('/users', function(req,res) {
+
+// 	User.remove({}).then(function(users){
+// 		console.log(users);
+// 		res.send({users});
+// 	}, function(e){
+// 		res.status(400).send(e);
+// 	});
+// });
+
 app.listen(port, function()
 {
 console.log("Started on port " + port);
