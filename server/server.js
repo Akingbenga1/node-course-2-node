@@ -10,6 +10,7 @@ const port = process.env.PORT;
 var mongoose = require('./db/mongoose').mongoose;
 var Todo = require('./models/todo').Todo;
 var User = require('./models/user').User;
+var authenticate = require('./middleware/authenticate').authenticate;
 
 var app = express();
 app.use(bodyParser.json());
@@ -151,6 +152,12 @@ app.post('/users', function(req,res)
 		res.status(404).send(e);
 	});
 	
+});
+
+
+
+app.get('/users/me', authenticate ,  function(req,res){
+	res.send(req.user);
 });
 
 // User.findByToken();
