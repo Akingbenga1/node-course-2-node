@@ -4,29 +4,20 @@ const ObjectID = require('mongodb').ObjectID;
 
 const app = require('./../server').app;
 const Todo = require('./../models/todo').Todo;
+const User = require('./../models/user').User;
 
-const todos = 
-				[{
-					_id : new ObjectID(),
-					text : "First test todo"
-				}, {
-					_id : new ObjectID(),
-					text : "Second test todo",
-					completed: true,
-					completedAt:333
-				}];
+const todos = require('./seed/seed').todos;
+const populateTodos = require('./seed/seed').populateTodos;
+
+const users = require('./seed/seed').users;
+const populateUsers = require('./seed/seed').populateUsers;
 
 
-beforeEach(function(done){
 
-	Todo.remove({}).then(function(){
-		//done();
 
-		return Todo.insertMany(todos);
-	}).then(function(){
-		done();
-	});
-});
+beforeEach(populateUsers);
+
+beforeEach(populateTodos);
 
 describe("POST /todos", function(){
 it('Should create a new Todo', function(done){
@@ -48,7 +39,6 @@ Todo.find().then(function(todos){
 	done(e);
 });
 });
-
 });
 
 
@@ -84,6 +74,7 @@ describe('GET /todos', function(){
 			expect(res.body.todos.length).toBe(2);
 		}).end(done)
 	});
+	
 });
 
 describe('GET /todos:id', function(){
@@ -189,5 +180,78 @@ describe('PATCH /todos/:id', function(){
 		expect(function(res){
 			//expect(res.body.text).toBe(todos[0].text);
 		}).end(done)
+	});
+});
+
+describe('GET  /users/me', function(){
+	it('should return user if authenticated', function(done){
+		request(app)
+		.get('users/me')
+		.set('x-auth', users[0].tokens[0].token)
+		.expect(200)
+		.expect(function(res){
+			expect(res.body._id).toBe(users[0]._id.toHexString());
+			expect(res.body.email).toBe(users[0].email);
+		});
+		done();
+	});
+
+	it('should return 401 if not authenticated', function(done){
+		request(app)
+		.get('/users/me')
+		.expect(401).
+		expect(function(res){
+			expect(res.body).toBe({});
+		}).end(done)
+	});
+});
+
+
+describe('POST  /users', function(){
+	it('should create a user', function(done){
+		var email = 'akinbami.gbenga@gmail.com';
+		var password = '123mnb';
+
+		request(app)
+		.post('/users')
+		.set({email, password})
+		.expect(200)
+		.expect(function(res){
+			expect(res.headers['x-auth']).toExist();
+			expect(res.body._id).toExist();
+			expect(res.body.email).toBe(email);
+		}).end(function(err){
+			if(err)
+			{
+				return done(err);
+			}
+			User.findOne({email}).then(function(user){
+				expect(user).toExist();
+				expect(user.password).toNotBe(password);
+				done();
+			});
+		});
+	});
+
+	it('should return vlidation errors if requesr invalid', function(done){
+		request(app)
+		.post('/users')
+		.send({
+			email: 'and',
+			password: '123'
+		})
+		.expect(400)
+		.end(done);
+	});
+
+	it('should not create users if email in use ', function(done){
+		request(app)
+		.post('/users')
+		send({
+			email: users[0].email,
+			password: 'Password123!'
+		})
+		.expect(400)
+		.end(done)
 	});
 });

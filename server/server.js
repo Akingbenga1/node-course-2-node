@@ -38,7 +38,18 @@ app.get('/todos', function(req,res) {
 		console.log(todos);
 		res.send({todos});
 	}, function(e){
-		res.status(400).send(e);
+		res.status(200).send(e);
+	});
+});
+
+
+app.get('/users', function(req,res) {
+
+	User.find().then(function(todos){
+		console.log(todos);
+		res.send({todos});
+	}, function(e){
+		res.status(200).send(e);
 	});
 });
 
@@ -142,6 +153,7 @@ app.post('/users', function(req,res)
 
 	var user = new User(body);
 
+
 	user.save().then(function(user){
 		
 		// res.status(200).send(user);
@@ -158,6 +170,8 @@ app.post('/users', function(req,res)
 
 app.get('/users/me', authenticate ,  function(req,res){
 	res.send(req.user);
+
+
 });
 
 // User.findByToken();
