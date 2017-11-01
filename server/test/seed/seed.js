@@ -6,7 +6,7 @@
 
  const userOneId = new ObjectID();
  const userTwoID = new ObjectID();
- const users = [{
+ const user = [{
  	_id : userOneId,
  	email : 'fermi@gmail.com',
  	password : 'userOnePass',
@@ -35,6 +35,7 @@
 				}];
 
 const populateTodos = function(done){
+	// done();
 
 	Todo.remove({}).then(function(){
 		//done();
@@ -42,11 +43,14 @@ const populateTodos = function(done){
 		return Todo.insertMany(todos);
 	}).then(function(){
 		done();
-	});
+	}).catch(function(e) {
+	done(e);
+});
 };
 
 
 const populateUsers = function(done){
+	// done();
 
 	User.remove({}).then(function(){
 		// done();
@@ -57,13 +61,15 @@ const populateUsers = function(done){
 
 	}).then(function()
 	{
-		done()
+		done();
+	}).catch(function(e) {
+	done(e);
 	});
 };
 
 
 
-module.exports = {todos, populateTodos, populateUsers, users};
+module.exports = {todos, populateTodos, populateUsers, user};
 
 
 
