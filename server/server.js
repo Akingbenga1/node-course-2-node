@@ -174,6 +174,25 @@ app.get('/users/me', authenticate ,  function(req,res){
 
 });
 
+
+app.post('/users/login', function(req,res)
+{
+	var body =  _.pick(req.body, ['email', 'password']);
+	// res.send(body);
+
+	User.findByCredentials(body.email, body.password).then(function(user){
+		// res.send(user);
+		user.generateAuthToken().then(function(token)
+		{
+			res.header('x-auth', token).send(user);
+		});
+	}).catch(function(e){
+			res.status(400).send();
+	});
+
+
+});
+
 // User.findByToken();
 // user.generateAuthToken()
 
