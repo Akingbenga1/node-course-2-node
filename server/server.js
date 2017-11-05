@@ -16,12 +16,13 @@ var app = express();
 app.use(bodyParser.json());
 
 
-app.post('/todos', function(req, res){
+app.post('/todos', authenticate ,  function(req, res){
 
 console.log(req.body);
 
 var todo = new Todo({
-	text : req.body.text
+	text : req.body.text,
+	_creator: req.user._id
 });
 
 todo.save().then(function(doc){
@@ -32,9 +33,11 @@ todo.save().then(function(doc){
 }) 
 });
 
-app.get('/todos', function(req,res) {
+app.get('/todos', authenticate ,  function(req,res) {
 
-	Todo.find().then(function(todos){
+	Todo.find({
+		_creator : req.user._id
+	}).then(function(todos){
 		console.log(todos);
 		res.send({todos});
 	}, function(e){
@@ -53,7 +56,7 @@ app.get('/users', function(req,res) {
 	});
 });
 
-app.get('/todos/:id', function(req,res) {
+app.get('/todos/:id', authenticate , function(req,res) {
 
 	var id = req.params.id;
 
@@ -61,7 +64,11 @@ app.get('/todos/:id', function(req,res) {
 	{
 		res.status(404).send("ID is invalid ");
 	}
-	Todo.findById(id).then(function(todos){
+	Todo.findOne({
+		_id: id,
+		_creator : req.user._id
+
+	}).then(function(todos){
 		if(!todos)
 		{
 			res.status(404).send("Request id not found");
@@ -80,7 +87,7 @@ app.get('/todos/:id', function(req,res) {
 	// });
 });
 
-app.delete('/todos/:id', function(req,res) {
+app.delete('/todos/:id' , authenticate , function(req,res) {
 
 	var id = req.params.id;
 
@@ -88,7 +95,11 @@ app.delete('/todos/:id', function(req,res) {
 	{
 		res.status(404).send("ID is invalid ");
 	}
-	Todo.findByIdAndRemove(id).then(function(todos){
+	Todo.findOneAndRemove({
+			_id : id,
+			_creator: req.user._id
+
+		}).then(function(todos){
 		if(!todos)
 		{
 			res.status(404).send("Request id not found");
@@ -107,7 +118,7 @@ app.delete('/todos/:id', function(req,res) {
 	// });
 });
 
-app.patch('/todos/:id', function(req,res) {
+app.patch('/todos/:id' , authenticate , function(req,res) {
 
 	var id = req.params.id;
 	var body =  _.pick(req.body, ['text', 'completed']);
@@ -125,7 +136,7 @@ app.patch('/todos/:id', function(req,res) {
 		body.completed = false;
 		body.completedAt = null;
 	}
-	Todo.findByIdAndUpdate(id, {$set: body}, {new : true}).then(function(todos){
+	Todo.findOneAndUpdate({_id: id, _creator: req.user._id }, {$set: body}, {new : true}).then(function(todos){
 		if(!todos)
 		{
 			res.status(404).send("Request id not found");
@@ -191,6 +202,17 @@ app.post('/users/login', function(req,res)
 	});
 
 
+});
+
+
+app.delete('/users/me/token', authenticate,  function(req,res)
+{
+
+	req.user.removeToken(req.token).then(function(){
+		res.status(200).send();
+	}, function(){
+		res.status(400).send();
+	});
 });
 
 // User.findByToken();

@@ -43,6 +43,7 @@ var userObject = user.toObject();
 
 return _.pick(userObject, ['_id', 'email'] );
 };
+
 UserSchema.methods.generateAuthToken = function(){
 var user = this;
 var access = 'auth';
@@ -53,6 +54,22 @@ user.tokens.push({access,token});
 return user.save().then( function(){
 	return token;
 });
+};
+
+
+
+UserSchema.methods.removeToken = function(token){
+
+var user = this;
+
+return user.update({
+	$pull:{
+		tokens:{
+			token:token
+		}
+	}
+});
+
 };
 
 UserSchema.statics.findByToken = function(token){
