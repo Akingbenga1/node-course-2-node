@@ -47,7 +47,7 @@ return _.pick(userObject, ['_id', 'email'] );
 UserSchema.methods.generateAuthToken = function(){
 var user = this;
 var access = 'auth';
-var token = jwt.sign({_id: user._id.toHexString(), access: access}, 'abc123').toString();
+var token = jwt.sign({_id: user._id.toHexString(), access: access}, process.env.JWT_SECRET).toString();
 
 user.tokens.push({access,token});
 
@@ -79,7 +79,7 @@ var decoded;
 
 try 
 {
-	decoded = jwt.verify(token, 'abc123');
+	decoded = jwt.verify(token, process.env.JWT_SECRET );
 	//console.log(decoded);
 } 
 catch(e) {
